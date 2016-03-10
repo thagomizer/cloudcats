@@ -1,0 +1,17 @@
+{
+  "name": "cloudcats-worker",
+  "version": "1.0.0",
+  "description": "The cloudcats worker uses the reddit API to crawl images on /r/aww and classify them with the Vision API as dogs, cats, or other.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Justin Beckwith<justin.beckwith@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "gcloud": "^0.29.0",
+    "hapi": "^13.0.0",
+    "node-uuid": "^1.4.7",
+    "request": "^2.69.0"
+  }
+}

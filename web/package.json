@@ -1,0 +1,24 @@
+{
+  "name": "cloudcats-web",
+  "version": "1.0.0",
+  "description": "CloudCats is an epic battleground to decide once and for all who the internet loves best:  dogs or cats.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Justin Beckwith<justin.beckwith@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": "4.2.3"
+  },
+  "dependencies": {
+    "gcloud": "^0.29.0",
+    "hapi": "^13.1.0",
+    "jade": "^1.11.0",
+    "nconf": "^0.8.4",
+    "pubnub": "^3.10.2",
+    "serve-favicon": "^2.3.0",
+    "vision": "^4.0.1"
+  }
+}
