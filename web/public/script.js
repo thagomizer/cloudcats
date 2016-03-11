@@ -7,6 +7,7 @@ var dogs = 0;
 var cats = 0;
 var other = 0;
 var total = 0;
+var count = 0;
 
 var dogDiv = document.getElementById('dogs');
 var catDiv = document.getElementById('cats');
@@ -35,10 +36,17 @@ nub.subscribe({
           cats++;
           catDiv.insertBefore(pic, catDiv.firstChild);
           break;
+        case "both":
+          cats++;
+          dogs++;
+          dogDiv.insertBefore(pic, dogDiv.firstChild);
+          catDiv.insertBefore(pic, catDiv.firstChild);
+          break;
       }
+      count++;
     }
 
-    if (other + dogs + cats === total) {
+    if (count === total) {
       var winner;
       console.log('we are DONE');
       if (cats > dogs) {
@@ -72,6 +80,7 @@ addButton.addEventListener('click', function() {
   cats = 0;
   other = 0;
   total = 0;
+  count = 0;
   fetch(apiEndpoint, { mode: 'no-cors' });
   snackbar.MaterialSnackbar.showSnackbar({
     message: "Let's get started!"

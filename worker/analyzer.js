@@ -29,12 +29,19 @@ function publishEvent(result, topic) {
 
   if (result.type === 'fin') {
     type = 'fin';
-  } else if (result.labels.indexOf('dog') > -1) {
-    type = 'dog';
-  } else if (result.labels.indexOf('cat') > -1) {
-    type = 'cat';
+  } else {
+    var containsDog = result.labels.indexOf('dog') > -1;
+    var containsCat = result.labels.indexOf('cat') > -1;
+
+    if (containsCat && !containsDog) {
+      type = 'cat';
+    } else if (containsDog && !containsCat) {
+      type = 'dog';
+    } else if (containsCat && containsDog) {
+      type = 'both';
+    }
   }
-  
+
   let evt = {
     data: {
       url: result.url,
@@ -75,7 +82,9 @@ function analyze() {
       publishEvent({
         type: 'fin',
         total: promises.length
-      }, topic);
+      }, topic).catch((err) => {
+        console.error('ERROR:' + util.inspect(err));
+      });
     });
   }).catch((err) => {
     console.error('ERROR:' + util.inspect(err));
