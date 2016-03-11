@@ -72,7 +72,7 @@ addButton.addEventListener('click', function() {
   cats = 0;
   other = 0;
   total = 0;
-  fetch('http://localhost:8081/go', { mode: 'no-cors' });
+  fetch(apiEndpoint, { mode: 'no-cors' });
   snackbar.MaterialSnackbar.showSnackbar({
     message: "Let's get started!"
   });

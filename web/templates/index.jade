@@ -1,13 +1,14 @@
 doctype html
 html
   head
-    title Google Cloud:  CLOUDCATS
+    title Google Cloud:  CLOUD CATS
     link(rel='stylesheet', href='//fonts.googleapis.com/icon?family=Material+Icons')
     link(rel='stylesheet', href='//code.getmdl.io/1.1.1/material.indigo-pink.min.css')
     script(defer='', src='//code.getmdl.io/1.1.1/material.min.js')
     link(rel='stylesheet', href='style.css')
     script(type='text/javascript').
       var subscribeKey = "#{subscribeKey}";
+      var apiEndpoint = "#{apiEndpoint}";
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
   body.mdl-demo.mdl-color--grey-200.mdl-color-text--grey-700.mdl-base
     .mdl-layout.mdl-js-layout.mdl-layout--fixed-header
@@ -18,7 +19,7 @@ html
         span.mdl-layout-title Learn more
         nav.mdl-navigation
           a.mdl-navigation__link(href='https://cloud.google.com/nodejs') Node.js on Google Cloud
-          a.mdl-navigation__link(href='github.com/GoogleCloudPlatform/nodejs-docs-samples') Node.js samples
+          a.mdl-navigation__link(href='https://github.com/GoogleCloudPlatform/nodejs-docs-samples') Node.js samples
           a.mdl-navigation__link(href='http://jbeckwith.com') About me
       main.mdl-layout__content.cover
         #container.page-content

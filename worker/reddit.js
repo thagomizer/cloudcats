@@ -1,9 +1,8 @@
 'use strict';
 
-const request = require('request')
+const request = require('request');
 
 let reddit = {
-  
   getImageUrls: () => {
     return _getPosts().then((posts) => {
       return posts
@@ -14,7 +13,7 @@ let reddit = {
           return post.data.preview.images[0].source.url;
         });
       });
-  },
+  }
 }
 
 function _getPosts() {

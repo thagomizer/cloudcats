@@ -45,11 +45,17 @@ server.register(plugins, (err) => {
   });
 
   // set up index page handler
+  let apiEndpoint = 
+    process.env.NODE_ENV == 'production' ? 
+      'https://worker.cloudcats.appspot.com/go' :
+      'http://localhost:8081/go';
+      
   server.route({ 
     method: 'GET', 
     path: '/', 
     handler: (request, reply) => {
       return reply.view('index', {
+        apiEndpoint: apiEndpoint,
         subscribeKey: nconf.get('pubnub_subscribe_key')
       });
     }
