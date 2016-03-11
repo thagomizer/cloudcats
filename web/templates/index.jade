@@ -2,13 +2,12 @@ doctype html
 html
   head
     title Google Cloud:  CLOUDCATS
-    script(src='fetch.js')
     link(rel='stylesheet', href='//fonts.googleapis.com/icon?family=Material+Icons')
     link(rel='stylesheet', href='//code.getmdl.io/1.1.1/material.indigo-pink.min.css')
     script(defer='', src='//code.getmdl.io/1.1.1/material.min.js')
     link(rel='stylesheet', href='style.css')
     script(type='text/javascript').
-      var subscribeKey = "{{subscribeKey}}";
+      var subscribeKey = "#{subscribeKey}";
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
   body.mdl-demo.mdl-color--grey-200.mdl-color-text--grey-700.mdl-base
     .mdl-layout.mdl-js-layout.mdl-layout--fixed-header
@@ -23,7 +22,7 @@ html
           a.mdl-navigation__link(href='http://jbeckwith.com') About me
       main.mdl-layout__content
         #container.page-content
-          block content
+          
             
     a#view-source.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-color--accent.mdl-color-text--accent-contrast(href='https://github.com/JustinBeckwith/cloudcats', target='_blank') View Source
     #snackbar.mdl-js-snackbar.mdl-snackbar

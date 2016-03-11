@@ -1,21 +1,13 @@
 'use strict';
 
 const Hapi = require('hapi');
-const nconf = require('nconf');
 const path = require('path');
-const favicon = require('serve-favicon');
-const gcloud = require('gcloud');
+const nconf = require('nconf');
+const relay = require('./catrelay')
 
 // Configure nconf for reading environment variables
 nconf.argv().env().file({
-    file: 'secrets.json'
-});
-
-// Set up pubnub 
-const pubnub = require("pubnub")({
-    ssl: true,
-    publish_key: nconf.get('pubnub_publish_key'),
-    subscribe_key: nconf.get('pubnub_subscribe_key')
+  file: 'secrets.json'
 });
 
 // Set up the server
@@ -25,26 +17,44 @@ server.connection({
   port: process.env.PORT || 8080 
 });
 
-// Handler for the / page
-const indexHandler = (request, reply) => {
-  return reply.view('index', {
-    subscribeKey: nconf.get('pubnub_subscribe_key')
-  });
-}
+// configure plugins and routes
+var plugins = [require('vision'), require('inert')];
+server.register(plugins, (err) => {
+  if (err) {
+      throw err;
+  }
 
-// configure templating
-server.register(require('vision'), (err) => {
-    if (err) {
-        throw err;
+  // configure jade views
+  server.views({
+    engines: { jade: require('jade') },
+    path: __dirname + '/templates',
+    compileOptions: {
+        pretty: true
     }
-    server.views({
-        engines: { jade: require('jade') },
-        path: __dirname + '/views',
-        compileOptions: {
-            pretty: true
-        }
-    });
-    server.route({ method: 'GET', path: '/', handler: indexHandler });
+  });
+
+  // set up static public handler
+  server.route({
+    method: 'GET',
+    path: '/{param*}',
+    handler: {
+      directory: {
+        path: 'public'
+      }
+    }
+  });
+
+  // set up index page handler
+  server.route({ 
+    method: 'GET', 
+    path: '/', 
+    handler: (request, reply) => {
+      return reply.view('index', {
+        subscribeKey: nconf.get('pubnub_subscribe_key')
+      });
+    }
+  });
+
 });
 
 // start the server
@@ -53,4 +63,7 @@ server.start((err) => {
     throw err;
   }
   console.log('Server running at:', server.info.uri);
+
+  // start listening for cats
+  relay.listen();
 });
