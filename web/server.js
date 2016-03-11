@@ -47,9 +47,9 @@ server.register(plugins, (err) => {
   // set up index page handler
   let apiEndpoint = 
     process.env.NODE_ENV == 'production' ? 
-      'https://worker.cloudcats.appspot.com/go' :
+      'https://worker-dot-cloudcats-next.appspot.com/go' :
       'http://localhost:8081/go';
-      
+
   server.route({ 
     method: 'GET', 
     path: '/', 
