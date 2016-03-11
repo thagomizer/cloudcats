@@ -10,7 +10,6 @@ const gcloud = require('gcloud')({
 
 const pubsub = gcloud.pubsub();
 const topicName = "picEvents";
-const subName = "picSub";
 
 function acquireTopic() {
   let promise = new Promise((resolve, reject) => {
@@ -25,76 +24,59 @@ function acquireTopic() {
   return promise;
 }
 
-function acquireSubscription(topic) {
-  let promise = new Promise((resolve, reject) => {
-    topic.subscribe(subName, {
-      autoAck: true,
-      reuseExisting: true
-    }, function(err, subscription) {
-      if (err) {
-        reject(err);
-      } else {
-        subscription.on('message', function(message) {
-          console.log('MESSAGE: ' + message.data);
-        });
-        console.log('listening to sub');
-        resolve(subscription);
-      }
-    });
+function publishEvent(result, topic) {
+  let type = 'other';
+
+  if (result.type === 'summary') {
+    type = 'summary';
+  } else if (result.labels.indexOf('dog') > -1) {
+    type = 'dog';
+  } else if (result.labels.indexOf('cat') > -1) {
+    type = 'cat';
+  } 
+
+  console.log(`it's a ${type}!`);
+  
+  let evt = {
+    data: {
+      url: result.url,
+      type: type,
+      count: result.count
+    }
+  };
+
+  topic.publish(evt, function(err) {
+    if (err) {
+      console.error(`error publishing event: ${util.inspect(err)}`);
+    } else {
+      console.log(`event published: ${url}`);
+    }
   });
-  return promise;
+  
 }
 
 function analyze() {
-  
-  acquireTopic().then((topic) => {
-    acquireSubscription(topic).then((sub) => {
-      console.log('GOT THE SUB!');
-    });
 
-    reddit.getImageUrls().then((urls) => {
-      let dogs = 0;
-      let cats = 0;
-      let promises = [];
-      for (let url of urls) {
-        let p = vision.annotate(url).then((result) => {
-          let type = 'none';
-          if (result.labels.indexOf('dog') > -1) {
-            dogs++;
-            type = 'dog';
-          } else if (result.labels.indexOf('cat') > -1) {
-            cats++;
-            type = 'cat';
-          }
+  let topicPromise = acquireTopic();
+  let redditPromise = reddit.getImageUrls();
 
-          if (type === 'dog' || type === 'cat') {
-            console.log(`it's a ${type}!`);
-            var evt = {
-              data: {
-                url: url,
-                type: type,
-                dogCount: dogs,
-                catCount: cats
-              }
-            };
-            console.log('I AM PUBLISHING AN EVENT');
-            topic.publish(evt, function(err) {
-              console.log('hello?');
-              if (err) {
-                console.error(`error publishing event: ${util.inspect(err)}`);
-              } else {
-                console.log(`event published: ${url}`);
-              }
-            });
-          }
-
-        }).catch((err) => {
-          console.log('Error publishing event:' + util.inspect(err));
-        });
-        promises.push(p);
-      }
-      Promise.all(promises).then(() => {
-        console.log(`dogs: ${dogs} / cats: ${cats}`);
+  Promise.all([topicPromise, redditPromise]).then((values) => {
+    var topic = values[0];
+    var urls = values[1];
+    let promises = [];
+    for (let url of urls) {
+      let p = vision.annotate(url).then((result) => {
+        publishEvent(result);
+      }).catch((err) => {
+        console.log('Error publishing event:' + util.inspect(err));
+      });
+      promises.push(p);
+    }
+    Promise.all(promises).then(() => {
+      // send a final event that lets the client know its done
+      publishEvent({
+        type: 'fin',
+        total: promises.length
       });
     });
   }).catch((err) => {
