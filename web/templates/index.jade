@@ -20,11 +20,29 @@ html
           a.mdl-navigation__link(href='https://cloud.google.com/nodejs') Node.js on Google Cloud
           a.mdl-navigation__link(href='github.com/GoogleCloudPlatform/nodejs-docs-samples') Node.js samples
           a.mdl-navigation__link(href='http://jbeckwith.com') About me
-      main.mdl-layout__content
+      main.mdl-layout__content.cover
         #container.page-content
+          #progress.mdl-progress.mdl-js-progress.mdl-progress__indeterminate
           
+          #cats
+          #dogs
+          #other
             
     a#view-source.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-color--accent.mdl-color-text--accent-contrast(href='https://github.com/JustinBeckwith/cloudcats', target='_blank') View Source
+    
+    button#add.mdl-button.mdl-js-button.mdl-button--fab.mdl-js-ripple-effect.mdl-button--colored.mdl-shadow--4dp.mdl-color--accent
+      i.material-icons(role='presentation') add
+      span.visuallyhidden Add
+
+    dialog.mdl-dialog
+      h4.mdl-dialog__title(id='dialogTitle') Turtles Win!
+      .mdl-dialog__content(id='dialogContent')
+        p
+          | Turtles weren't even an option?
+      .mdl-dialog__actions
+        button.mdl-button.close(type='button') Awesome!
+
+
     #snackbar.mdl-js-snackbar.mdl-snackbar
       .mdl-snackbar__text Vote counted!
       button.mdl-snackbar__action(type='button')

@@ -27,21 +27,19 @@ function acquireTopic() {
 function publishEvent(result, topic) {
   let type = 'other';
 
-  if (result.type === 'summary') {
-    type = 'summary';
+  if (result.type === 'fin') {
+    type = 'fin';
   } else if (result.labels.indexOf('dog') > -1) {
     type = 'dog';
   } else if (result.labels.indexOf('cat') > -1) {
     type = 'cat';
-  } 
-
-  console.log(`it's a ${type}!`);
+  }
   
   let evt = {
     data: {
       url: result.url,
       type: type,
-      count: result.count
+      total: result.total
     }
   };
 
@@ -49,7 +47,7 @@ function publishEvent(result, topic) {
     if (err) {
       console.error(`error publishing event: ${util.inspect(err)}`);
     } else {
-      console.log(`event published: ${url}`);
+      console.log(`event published: ${type}`);
     }
   });
   
@@ -66,7 +64,7 @@ function analyze() {
     let promises = [];
     for (let url of urls) {
       let p = vision.annotate(url).then((result) => {
-        publishEvent(result);
+        publishEvent(result, topic);
       }).catch((err) => {
         console.log('Error publishing event:' + util.inspect(err));
       });
@@ -77,7 +75,7 @@ function analyze() {
       publishEvent({
         type: 'fin',
         total: promises.length
-      });
+      }, topic);
     });
   }).catch((err) => {
     console.error('ERROR:' + util.inspect(err));
