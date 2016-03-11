@@ -1,8 +1,15 @@
 
-main {
-  // background: url('boo2.png') no-repeat center center fixed;
-  // background-size: cover;
-  // background-color: rgba(0, 0, 0, 0.6);
+.pics {
+  width:50%;
+  float: left;
+}
+
+.pics div {
+  width: 200px;
+  height: 200px;
+  margin: 3px;
+  background-size: cover;
+  float: left;
 }
 
 .cover::after {
@@ -14,7 +21,7 @@ main {
   left: 0;
   bottom: 0;
   right: 0;
-  position: absolute;
+  position: fixed;
   z-index: -1;
 }
 
@@ -27,7 +34,7 @@ main {
   left: 0;
   bottom: 0;
   right: 0;
-  position: absolute;
+  position: fixed;
   z-index: -1;
 }
 
