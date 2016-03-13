@@ -2,6 +2,7 @@
 
 const request = require('request');
 const uuid = require('node-uuid');
+const util = require('util');
 const gcloud = require('gcloud')({
   projectId: 'cloudcats-next',
   keyFilename: 'keyfile.json'
@@ -11,27 +12,40 @@ const vision = gcloud.vision();
 const storage = gcloud.storage();
 const bucket = storage.bucket('cloudcats-bucket');
 
+var count = 0;
+
 function annotate(url) {
-  var promise = new Promise((resolve, reject) => {
+  let promise = new Promise((resolve, reject) => {
     let name = uuid.v4();
     let file = bucket.file(name);
+    var idx = count++;
+    console.log('requesting ' + idx);
     request(url)
       .pipe(file.createWriteStream())
       .on('finish', () => {
-        vision.detectLabels(file, function(err, labels) {
-          if (err) console.error(err);
+        console.log('annotating ' + count);
+        vision.detectLabels(file, (err, labels) => {
+          if (err) {
+            console.error('err annotating: ' + idx);
+            console.error("Error detecting labels: " + util.inspect(err));
+            reject(err);
+          }
+          console.log('annotate ' + idx + ' success');
           file.delete();
           resolve({
             url: url,
             labels: labels
           });
         });
+      }).on('error', (err) => {
+        console.error("Error requesting content: \n\t" + url + "\n\t" + util.inspect(err) + "\n\t" + err.stack);
+        reject(err);
       });
     });
   return promise;
 }
 
-var api = {
+let api = {
   annotate: annotate
 }
 

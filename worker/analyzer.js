@@ -13,7 +13,7 @@ const topicName = "picEvents";
 
 function acquireTopic() {
   let promise = new Promise((resolve, reject) => {
-    pubsub.createTopic(topicName, function(err, topic) {
+    pubsub.createTopic(topicName, (err, topic) => {
       if (err && err.code !== 409) {
         reject(err);
       } else {
@@ -25,55 +25,57 @@ function acquireTopic() {
 }
 
 function publishEvent(result, topic) {
-  let type = 'other';
+  return new Promise((resolve, reject) => {
+    let type = 'other';
 
-  if (result.type === 'fin') {
-    type = 'fin';
-  } else {
-    var containsDog = result.labels.indexOf('dog') > -1;
-    var containsCat = result.labels.indexOf('cat') > -1;
-
-    if (containsCat && !containsDog) {
-      type = 'cat';
-    } else if (containsDog && !containsCat) {
-      type = 'dog';
-    } else if (containsCat && containsDog) {
-      type = 'both';
-    }
-  }
-
-  let evt = {
-    data: {
-      url: result.url,
-      type: type,
-      total: result.total
-    }
-  };
-
-  topic.publish(evt, function(err) {
-    if (err) {
-      console.error(`error publishing event: ${util.inspect(err)}`);
+    if (result.type === 'fin') {
+      type = 'fin';
     } else {
-      console.log(`event published: ${type}`);
+      let containsDog = result.labels.indexOf('dog') > -1;
+      let containsCat = result.labels.indexOf('cat') > -1;
+
+      if (containsCat && !containsDog) {
+        type = 'cat';
+      } else if (containsDog && !containsCat) {
+        type = 'dog';
+      } else if (containsCat && containsDog) {
+        type = 'both';
+      }
     }
+
+    let evt = {
+      data: {
+        url: result.url,
+        type: type,
+        total: result.total
+      }
+    };
+
+    topic.publish(evt, (err) => {
+      if (err) {
+        console.error(`error publishing event: ${util.inspect(err)}\n\t${err.stack}`);
+        reject(err);
+      } else {
+        console.log(`event published: ${type}`);
+        resolve(evt);
+      }
+    });
   });
-  
 }
 
 function analyze() {
-
   let topicPromise = acquireTopic();
   let redditPromise = reddit.getImageUrls();
 
   Promise.all([topicPromise, redditPromise]).then((values) => {
-    var topic = values[0];
-    var urls = values[1];
+    let topic = values[0];
+    let urls = values[1];
     let promises = [];
     for (let url of urls) {
       let p = vision.annotate(url).then((result) => {
-        publishEvent(result, topic);
+        return publishEvent(result, topic);
       }).catch((err) => {
-        console.log('Error publishing event:' + util.inspect(err));
+        console.error('Error annotating event:' + util.inspect(err) + "\n\t" + err.stack);
       });
       promises.push(p);
     }
@@ -83,11 +85,11 @@ function analyze() {
         type: 'fin',
         total: promises.length
       }, topic).catch((err) => {
-        console.error('ERROR:' + util.inspect(err));
+        console.error('Error publishing fin event: ' + util.inspect(err));
       });
     });
   }).catch((err) => {
-    console.error('ERROR:' + util.inspect(err));
+    console.error('Error processing images: ' + util.inspect(err));
   });
 }
 
