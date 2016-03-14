@@ -8,6 +8,7 @@ var cats = 0;
 var other = 0;
 var total = 0;
 var count = 0;
+var queue = [];
 
 var dogDiv = document.getElementById('dogs');
 var catDiv = document.getElementById('cats');
@@ -16,55 +17,7 @@ nub.subscribe({
   channel: 'cloudcats',
   message: function(m) {
     console.log(m);
-    
-    if (m.data.type === 'fin') {
-      total = m.data.total;
-      console.log('total!: ' + total);
-    } else {
-      var pic = document.createElement('div');
-      pic.style.backgroundImage = 'url(' + m.data.url + ')';
-      var container = null;
-      switch (m.data.type) {
-        case "other":
-          other++;
-          break;
-        case "dog":
-          dogs++;
-          dogDiv.insertBefore(pic, dogDiv.firstChild);
-          break;
-        case "cat":
-          cats++;
-          catDiv.insertBefore(pic, catDiv.firstChild);
-          break;
-        case "both":
-          cats++;
-          dogs++;
-          dogDiv.insertBefore(pic, dogDiv.firstChild);
-          catDiv.insertBefore(pic, catDiv.firstChild);
-          break;
-      }
-      count++;
-    }
-
-    if (count === total) {
-      var winner;
-      console.log('we are DONE');
-      if (cats > dogs) {
-        winner = 'CATS';
-      } else if (dogs > cats) {
-        winner = 'DOGS';
-      } else {
-        winner = 'tie';
-      }
-
-      showDialog({
-        winner: winner,
-        dogs: dogs,
-        cats: cats,
-        other: other,
-        total: total
-      });
-    }
+    queue.push(m);
   }
 });
 
@@ -106,3 +59,62 @@ function showDialog(data) {
   progress.style.display = 'none';
   dialog.showModal();
 }
+
+function processMessage(m) {
+
+  if (m.data.type === 'fin') {
+    total = m.data.total;
+    console.log('total!: ' + total);
+  } else {
+    var pic = document.createElement('div');
+    pic.style.backgroundImage = 'url(' + m.data.url + ')';
+    var container = null;
+    switch (m.data.type) {
+      case "other":
+        other++;
+        break;
+      case "dog":
+        dogs++;
+        dogDiv.insertBefore(pic, dogDiv.firstChild);
+        break;
+      case "cat":
+        cats++;
+        catDiv.insertBefore(pic, catDiv.firstChild);
+        break;
+      case "both":
+        cats++;
+        dogs++;
+        dogDiv.insertBefore(pic, dogDiv.firstChild);
+        catDiv.insertBefore(pic, catDiv.firstChild);
+        break;
+    }
+    count++;
+  }
+
+  if (count === total) {
+    var winner;
+    console.log('we are DONE');
+    if (cats > dogs) {
+      winner = 'CATS';
+    } else if (dogs > cats) {
+      winner = 'DOGS';
+    } else {
+      winner = 'tie';
+    }
+
+    showDialog({
+      winner: winner,
+      dogs: dogs,
+      cats: cats,
+      other: other,
+      total: total
+    });
+  }
+}
+
+setInterval(function() {
+  if (queue.length > 0) {
+    processMessage(queue.shift());
+  }
+}, 500)
+
