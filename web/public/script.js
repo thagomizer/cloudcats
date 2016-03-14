@@ -54,7 +54,7 @@ function showDialog(data) {
     dialogTitle.innerText = 'TIE! TIE! TIE!'  
   } else {
     dialogContent.innerText = 'It looks like the Internet really likes ' + data.winner + '. Who knew?';
-    dialogTitle.innerText = data.winner + ' WINS!'
+    dialogTitle.innerText = data.winner + ' WIN!'
   }
   progress.style.display = 'none';
   dialog.showModal();
