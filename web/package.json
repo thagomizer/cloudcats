@@ -4,7 +4,7 @@
   "description": "CloudCats is an epic battleground to decide once and for all who the internet loves best:  dogs or cats.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "GCLOUD_PROJECT_NUM=870291072299 node --require @google/cloud-debug server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
