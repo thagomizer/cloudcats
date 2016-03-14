@@ -9,7 +9,7 @@ let reddit = {
     return new Promise((resolve, reject) => {
       let allPosts = [];
       let currentPromise = Promise.resolve(null);
-      for (let i=0; i<1; i++) {
+      for (let i=0; i<5; i++) {
         currentPromise = currentPromise.then((after) => {
           return _getPage(after).then((page) => {
             Array.prototype.push.apply(allPosts, 

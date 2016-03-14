@@ -75,7 +75,7 @@ function analyze() {
       let p = vision.annotate(url).then((result) => {
         return publishEvent(result, topic);
       }).catch((err) => {
-        console.error('Error annotating event:' + util.inspect(err) + "\n\t" + err.stack);
+        console.error('Error annotating event:' + util.inspect(err));
       });
       promises.push(p);
     }
