@@ -10,11 +10,13 @@
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@google/cloud-debug": "^0.6.2",
+    "@google/cloud-trace": "^0.3.0",
     "gcloud": "^0.29.0",
     "hapi": "^13.0.0",
     "node-uuid": "^1.4.7",
     "request": "^2.69.0"
-  }, 
+  },
   "engines": {
     "node": "^4.4.0"
   }

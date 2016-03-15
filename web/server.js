@@ -1,5 +1,7 @@
 'use strict';
 
+require('@google/cloud-trace').start({projectId: 'cloudcats-next'});
+
 const Hapi = require('hapi');
 const path = require('path');
 const nconf = require('nconf');
