@@ -23,14 +23,11 @@ function annotate(url) {
     request(url)
       .pipe(file.createWriteStream())
       .on('finish', () => {
-        console.log('annotating ' + count);
         vision.detectLabels(file, (err, labels) => {
           if (err) {
-            console.error('err annotating: ' + idx);
             console.error("Error detecting labels: " + util.inspect(err));
             reject(err);
           }
-          console.log('annotate ' + idx + ' success');
           file.delete();
           resolve({
             url: url,

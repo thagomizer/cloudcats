@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/cloud-debug": "^0.6.2",
     "@google/cloud-trace": "^0.3.0",
+    "async": "^1.5.2",
     "gcloud": "^0.29.0",
     "hapi": "^13.0.0",
     "node-uuid": "^1.4.7",

@@ -3,6 +3,7 @@
 const reddit = require('./reddit');
 const vision = require('./vision');
 const util = require('util');
+const async = require('async');
 const gcloud = require('gcloud')({
   projectId: 'cloudcats-next',
   keyFilename: 'keyfile.json'
@@ -67,27 +68,47 @@ function analyze() {
   let topicPromise = acquireTopic();
   let redditPromise = reddit.getImageUrls();
 
-  Promise.all([topicPromise, redditPromise]).then((values) => {
+  return Promise.all([topicPromise, redditPromise]).then((values) => {
     let topic = values[0];
     let urls = values[1];
     let promises = [];
-    for (let url of urls) {
+
+    var q = async.queue((url, callback) => {
+      console.log('hello ' + url);
       let p = vision.annotate(url).then((result) => {
+        callback();
         return publishEvent(result, topic);
       }).catch((err) => {
         console.error('Error annotating event:' + util.inspect(err));
+        callback(err);
       });
       promises.push(p);
-    }
-    Promise.all(promises).then(() => {
-      // send a final event that lets the client know its done
-      publishEvent({
-        type: 'fin',
-        total: promises.length
-      }, topic).catch((err) => {
-        console.error('Error publishing fin event: ' + util.inspect(err));
+    }, 20);
+
+    q.push(urls);
+
+    q.drain = () => {
+      console.log('all items have been processed');
+      Promise.all(promises).then(() => {
+        // send a final event that lets the client know its done
+        publishEvent({
+          type: 'fin',
+          total: promises.length
+        }, topic).catch((err) => {
+          console.error('Error publishing fin event: ' + util.inspect(err));
+        });
       });
-    });
+    }
+
+    // for (let url of urls) {
+    //   let p = vision.annotate(url).then((result) => {
+    //     return publishEvent(result, topic);
+    //   }).catch((err) => {
+    //     console.error('Error annotating event:' + util.inspect(err));
+    //   });
+    //   promises.push(p);
+    // }
+    
   }).catch((err) => {
     console.error('Error processing images: ' + util.inspect(err));
   });

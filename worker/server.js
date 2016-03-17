@@ -16,8 +16,9 @@ server.route({
   method: 'GET',
   path:'/go', 
   handler: (request, reply) => {
-    analyzer.analyze();
-    return reply('OK!');
+    analyzer.analyze().then(() => {
+      return reply('OK!');
+    });
   }
 });
 
