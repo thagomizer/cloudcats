@@ -12,105 +12,125 @@ const gcloud = require('gcloud')({
 const pubsub = gcloud.pubsub();
 const topicName = "picEvents";
 
-function acquireTopic() {
-  let promise = new Promise((resolve, reject) => {
-    pubsub.createTopic(topicName, (err, topic) => {
-      if (err && err.code !== 409) {
-        reject(err);
-      } else {
-        resolve(pubsub.topic(topicName));
-      }
-    });
-  });
-  return promise;
-}
-
-function publishEvent(result, topic) {
-  return new Promise((resolve, reject) => {
-    let type = 'other';
-
-    if (result.type === 'fin') {
-      type = 'fin';
+function acquireTopic(callback) {
+  pubsub.createTopic(topicName, (err, topic) => {
+    if (err && err.code !== 409) {
+      callback(err);
     } else {
-      let containsDog = result.labels.indexOf('dog') > -1;
-      let containsCat = result.labels.indexOf('cat') > -1;
-
-      if (containsCat && !containsDog) {
-        type = 'cat';
-      } else if (containsDog && !containsCat) {
-        type = 'dog';
-      } else if (containsCat && containsDog) {
-        type = 'both';
-      }
+      callback(null, pubsub.topic(topicName));
     }
-
-    let evt = {
-      data: {
-        url: result.url,
-        type: type,
-        total: result.total
-      }
-    };
-
-    topic.publish(evt, (err) => {
-      if (err) {
-        console.error(`error publishing event: ${util.inspect(err)}\n\t${err.stack}`);
-        reject(err);
-      } else {
-        console.log(`event published: ${type}`);
-        resolve(evt);
-      }
-    });
   });
 }
 
-function analyze() {
-  let topicPromise = acquireTopic();
-  let redditPromise = reddit.getImageUrls();
+function publishEvent(result, topic, callback) {
+  let type = 'other';
 
-  return Promise.all([topicPromise, redditPromise]).then((values) => {
-    let topic = values[0];
-    let urls = values[1];
-    let promises = [];
+  if (result.type === 'fin') {
+    type = 'fin';
+  } else {
+    let containsDog = result.labels.indexOf('dog') > -1;
+    let containsCat = result.labels.indexOf('cat') > -1;
 
-    var q = async.queue((url, callback) => {
-      console.log('hello ' + url);
-      let p = vision.annotate(url).then((result) => {
-        callback();
-        return publishEvent(result, topic);
-      }).catch((err) => {
-        console.error('Error annotating event:' + util.inspect(err));
-        callback(err);
+    if (containsCat && !containsDog) {
+      type = 'cat';
+    } else if (containsDog && !containsCat) {
+      type = 'dog';
+    } else if (containsCat && containsDog) {
+      type = 'both';
+    }
+  }
+
+  let evt = {
+    data: {
+      url: result.url,
+      type: type,
+      total: result.total
+    }
+  };
+
+  topic.publish(evt, (err) => {
+    if (err) {
+      console.error(`error publishing event: ${util.inspect(err)}\n\t${err.stack}`);
+      return callback(err);
+    } else {
+      console.log(`event published: ${type}`);
+      callback(null, evt);
+    }
+  });
+}
+
+function analyze(callback) {
+  console.log("Starting to analyze!");
+  let cnt = 0;
+
+  // go get the topic and reddit posts in parallel
+  async.parallel([(callback) => {
+      // get topics
+      acquireTopic((err, topic) => {
+        if (err) {
+          console.error("Error acquiring topic: " + util.inspect(err));
+          return callback(err);
+        }
+        callback(null, topic);
       });
-      promises.push(p);
-    }, 20);
+    }, (callback) => {
+      // get urls
+      reddit.getImageUrls((err, urls) => {
+        if (err) {
+          console.error("Error acquiring reddit urls: " + util.inspect(err));
+          return callback(err);
+        }
+        callback(null, urls);
+      });
+    }
+  ], (err, results) => {
+
+    // we now have urls and the topic
+    if (err) {
+      console.error("Error acquiring topic or urls: " + util.inspect(err));
+      return callback(err);
+    }
+    console.log('Received reddit posts and topic, starting classification.');
+
+    let topic = results[0];
+    let urls = results[1];
+    
+    // queue vision/pubsub jobs so we don't drown the connection
+    var q = async.queue((url, callback) => {
+      console.log('processing ' + url);
+      vision.annotate(url, (err, result) => {
+        if (err) {
+          console.error('Error annotating image:' + util.inspect(err));
+          return callback(err);
+        }
+        publishEvent(result, topic, (err, evt) => {
+          if (err) {
+            console.error('Error publishing event:' + util.inspect(err));
+            return callback(err);
+          }
+          cnt++;
+          console.log(`${cnt} objects complete`);
+          callback(null);
+        });
+      });
+    }, 15);
 
     q.push(urls);
 
     q.drain = () => {
-      console.log('all items have been processed');
-      Promise.all(promises).then(() => {
-        // send a final event that lets the client know its done
-        publishEvent({
-          type: 'fin',
-          total: promises.length
-        }, topic).catch((err) => {
+      console.log('***all items have been processed***');
+      // send a final event that lets the client know its done
+      publishEvent({
+        type: 'fin',
+        total: urls.length
+      }, topic, (err, evt) => {
+        if (err) {
           console.error('Error publishing fin event: ' + util.inspect(err));
-        });
+          return callback(err);
+        }
       });
     }
 
-    // for (let url of urls) {
-    //   let p = vision.annotate(url).then((result) => {
-    //     return publishEvent(result, topic);
-    //   }).catch((err) => {
-    //     console.error('Error annotating event:' + util.inspect(err));
-    //   });
-    //   promises.push(p);
-    // }
-    
-  }).catch((err) => {
-    console.error('Error processing images: ' + util.inspect(err));
   });
 }
 

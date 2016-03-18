@@ -24,40 +24,42 @@ const pubnub = require("pubnub")({
 });
 
 // Create or acquire a reference to a pub/sub topic
-const acquireTopic = () => {
-  let promise = new Promise((resolve, reject) => {
-    pubsub.createTopic(topicName, function(err, topic) {
-      if (err && err.code !== 409) {
-        reject(err);
-      } else {
-        resolve(pubsub.topic(topicName));
-      }
-    });
+const acquireTopic = (callback) => {
+  pubsub.createTopic(topicName, function(err, topic) {
+  if (err && err.code !== 409) {
+      callback(err);
+    } else {
+      callback(null, pubsub.topic(topicName));
+    }
   });
-  return promise;
 }
 
 // Create or acquire a reference to a pub/sub subscription
-const acquireSubscription = (topic) => {
-  let promise = new Promise((resolve, reject) => {
-    topic.subscribe(subName, {
-      autoAck: true,
-      reuseExisting: true
-    }, function(err, subscription) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(subscription);
-      }
-    });
+const acquireSubscription = (topic, callback) => {
+  topic.subscribe(subName, {
+    autoAck: true,
+    reuseExisting: true
+  }, function(err, subscription) {
+    if (err) {
+      console.error("Error acquiring subscription: " + util.inspect(err));
+      return callback(err);
+    } else {
+      callback(null, subscription);
+    }
   });
-  return promise;
 }
 
 // Create the subscription, and forward messages to the browser
-const listen = () => {
-  return acquireTopic().then((topic) => {
-    return acquireSubscription(topic).then((subscription) => {
+const listen = (callback) => {
+  acquireTopic((err, topic) => {
+    if (err) {
+      console.error("Error acquiring topic: " + util.inspect(err));
+    }
+    acquireSubscription(topic, (err, subscription) => {
+      if (err) {
+        console.error("Error acquiring subscription: " + util.inspect(err));
+        return callback(err);
+      }
       subscription.on('message', (message) => {
         console.log('MESSAGE: ' + util.inspect(message));
         pubnub.publish({
@@ -68,8 +70,6 @@ const listen = () => {
       });
       console.log('listening to sub');
     });
-  }).catch((err) => {
-    console.error("Error acquiring topic: " + util.inspect(err));
   });
 };
 
