@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "GCLOUD_PROJECT_NUM=870291072299 node --require @google/cloud-debug server.js"
+    "start": "GCLOUD_TRACE_LOGLEVEL=4 GCLOUD_PROJECT_NUM=870291072299 node server.js"
   },
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
   "license": "MIT",
