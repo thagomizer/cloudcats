@@ -128,6 +128,7 @@ function analyze(callback) {
           console.error('Error publishing fin event: ' + util.inspect(err));
           return callback(err);
         }
+        return callback();
       });
     }
 
