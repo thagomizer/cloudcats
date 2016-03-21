@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@google/cloud-debug": "^0.6.2",
-    "@google/cloud-trace": "^0.3.0",
+    "@google/cloud-trace": "github:googlecloudplatform/cloud-trace-nodejs#canary",
     "gcloud": "^0.29.0",
     "hapi": "^13.1.0",
     "inert": "^3.2.0",
