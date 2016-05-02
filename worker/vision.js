@@ -4,7 +4,6 @@ const request = require('request');
 const uuid = require('node-uuid');
 const util = require('util');
 const gcloud = require('gcloud')({
-  projectId: 'cloudcats-next',
   keyFilename: 'keyfile.json'
 });
 

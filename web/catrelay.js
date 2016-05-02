@@ -3,7 +3,6 @@
 const nconf = require('nconf');
 const util = require('util');
 const gcloud = require('gcloud')({
-  projectId: 'cloudcats-next',
   keyFilename: 'keyfile.json'
 });
 
