@@ -6,7 +6,8 @@ require('@google/cloud-debug');
 const Hapi = require('hapi');
 const path = require('path');
 const nconf = require('nconf');
-const relay = require('./catrelay')
+const relay = require('./catrelay');
+const logger = require('./logger');
 
 // Configure nconf for reading environment variables
 nconf.argv().env().file({
@@ -71,7 +72,8 @@ server.start((err) => {
   if (err) {
     throw err;
   }
-  console.log('Server running at:', server.info.uri);
+  logger.error('not really an error');
+  logger.info('Server running at:', server.info.uri);
 
   // start listening for cats
   relay.listen();

@@ -3,6 +3,7 @@
 const request = require('request');
 const uuid = require('node-uuid');
 const util = require('util');
+const logger = require('./logger');
 const gcloud = require('gcloud')({
   keyFilename: 'keyfile.json'
 });
@@ -23,7 +24,7 @@ function annotate(url, callback) {
     .on('finish', () => {
       vision.detectLabels(file, (err, labels) => {
         if (err) {
-          console.error("Error detecting labels: " + util.inspect(err));
+          logger.error("Error detecting labels: " + util.inspect(err));
           return callback(err);
         }
         file.delete();
@@ -33,7 +34,7 @@ function annotate(url, callback) {
         });
       });
     }).on('error', (err) => {
-      console.error("Error requesting content: \n\t" + url + "\n\t" + util.inspect(err) + "\n\t" + err.stack);
+      logger.error("Error requesting content: \n\t" + url + "\n\t" + util.inspect(err) + "\n\t" + err.stack);
       return callback(err);
     });
 }

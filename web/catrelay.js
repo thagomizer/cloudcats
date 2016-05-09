@@ -2,6 +2,7 @@
 
 const nconf = require('nconf');
 const util = require('util');
+const logger = require('./logger');
 const gcloud = require('gcloud')({
   keyFilename: 'keyfile.json'
 });
@@ -40,7 +41,7 @@ const acquireSubscription = (topic, callback) => {
     reuseExisting: true
   }, function(err, subscription) {
     if (err) {
-      console.error("Error acquiring subscription: " + util.inspect(err));
+      logger.error("Error acquiring subscription: " + util.inspect(err));
       return callback(err);
     } else {
       callback(null, subscription);
@@ -52,22 +53,22 @@ const acquireSubscription = (topic, callback) => {
 const listen = (callback) => {
   acquireTopic((err, topic) => {
     if (err) {
-      console.error("Error acquiring topic: " + util.inspect(err));
+      logger.error("Error acquiring topic: " + util.inspect(err));
     }
     acquireSubscription(topic, (err, subscription) => {
       if (err) {
-        console.error("Error acquiring subscription: " + util.inspect(err));
+        logger.error("Error acquiring subscription: " + util.inspect(err));
         return callback(err);
       }
       subscription.on('message', (message) => {
-        console.log('MESSAGE: ' + util.inspect(message));
+        logger.info('MESSAGE: ' + util.inspect(message));
         pubnub.publish({
           channel: 'cloudcats',        
           message: message,
-          callback : (m) => { console.log(m) }
+          callback : (m) => { logger.info(m) }
         });
       });
-      console.log('listening to sub');
+      logger.info('listening to sub');
     });
   });
 };

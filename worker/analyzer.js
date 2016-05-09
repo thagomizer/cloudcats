@@ -4,8 +4,8 @@ const reddit = require('./reddit');
 const vision = require('./vision');
 const util = require('util');
 const async = require('async');
+const logger = require('./logger');
 const gcloud = require('gcloud')({
-  projectId: 'cloudcats-next',
   keyFilename: 'keyfile.json'
 });
 
@@ -50,17 +50,17 @@ function publishEvent(result, topic, callback) {
 
   topic.publish(evt, (err) => {
     if (err) {
-      console.error(`error publishing event: ${util.inspect(err)}\n\t${err.stack}`);
+      logger.error(`error publishing event: ${util.inspect(err)}\n\t${err.stack}`);
       return callback(err);
     } else {
-      console.log(`event published: ${type}`);
+      logger.info(`event published: ${type}`);
       callback(null, evt);
     }
   });
 }
 
 function analyze(callback) {
-  console.log("Starting to analyze!");
+  logger.info("Starting to analyze!");
   let cnt = 0;
 
   // go get the topic and reddit posts in parallel
@@ -68,7 +68,7 @@ function analyze(callback) {
       // get topics
       acquireTopic((err, topic) => {
         if (err) {
-          console.error("Error acquiring topic: " + util.inspect(err));
+          logger.error("Error acquiring topic: " + util.inspect(err));
           return callback(err);
         }
         callback(null, topic);
@@ -77,7 +77,7 @@ function analyze(callback) {
       // get urls
       reddit.getImageUrls((err, urls) => {
         if (err) {
-          console.error("Error acquiring reddit urls: " + util.inspect(err));
+          logger.error("Error acquiring reddit urls: " + util.inspect(err));
           return callback(err);
         }
         callback(null, urls);
@@ -87,29 +87,29 @@ function analyze(callback) {
 
     // we now have urls and the topic
     if (err) {
-      console.error("Error acquiring topic or urls: " + util.inspect(err));
+      logger.error("Error acquiring topic or urls: " + util.inspect(err));
       return callback(err);
     }
-    console.log('Received reddit posts and topic, starting classification.');
+    logger.info('Received reddit posts and topic, starting classification.');
 
     let topic = results[0];
     let urls = results[1];
     
     // queue vision/pubsub jobs so we don't drown the connection
     var q = async.queue((url, callback) => {
-      console.log('processing ' + url);
+      logger.info('processing ' + url);
       vision.annotate(url, (err, result) => {
         if (err) {
-          console.error('Error annotating image:' + util.inspect(err));
+          logger.error('Error annotating image:' + util.inspect(err));
           return callback(err);
         }
         publishEvent(result, topic, (err, evt) => {
           if (err) {
-            console.error('Error publishing event:' + util.inspect(err));
+            logger.error('Error publishing event:' + util.inspect(err));
             return callback(err);
           }
           cnt++;
-          console.log(`${cnt} objects complete`);
+          logger.info(`${cnt} objects complete`);
           callback(null);
         });
       });
@@ -118,14 +118,14 @@ function analyze(callback) {
     q.push(urls);
 
     q.drain = () => {
-      console.log('***all items have been processed***');
+      logger.info('***all items have been processed***');
       // send a final event that lets the client know its done
       publishEvent({
         type: 'fin',
         total: urls.length
       }, topic, (err, evt) => {
         if (err) {
-          console.error('Error publishing fin event: ' + util.inspect(err));
+          logger.error('Error publishing fin event: ' + util.inspect(err));
           return callback(err);
         }
         return callback();

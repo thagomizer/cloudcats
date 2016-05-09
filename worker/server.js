@@ -6,6 +6,7 @@ require('@google/cloud-debug');
 const request = require('request');
 const Hapi = require('hapi');
 const analyzer = require('./analyzer');
+const logger = require('./logger');
 
 const server = new Hapi.Server();
 server.connection({ 
@@ -27,5 +28,6 @@ server.start((err) => {
     if (err) {
         throw err;
     }
-    console.log('Server running at:', server.info.uri);
+    logger.error('ITS AN ERROR OMG!!1');
+    logger.info('Server running at:', server.info.uri);
 });

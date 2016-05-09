@@ -16,7 +16,9 @@
     "gcloud": "^0.29.0",
     "hapi": "^13.0.0",
     "node-uuid": "^1.4.7",
-    "request": "^2.69.0"
+    "request": "^2.69.0",
+    "winston": "^2.2.0",
+    "winston-gae": "^0.1.0"
   },
   "engines": {
     "node": "^4.4.3"

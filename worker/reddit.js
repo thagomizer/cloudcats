@@ -3,18 +3,19 @@
 const request = require('request');
 const util = require('util');
 const async = require('async');
+const logger = require('./logger');
 
 let reddit = {
   getImageUrls: (callback) => {
-    console.log("Request data from reddit...");
+    logger.info("Request data from reddit...");
     let allPosts = [];
     let pagesToFetch = 3;
     let fetchFns = Array(pagesToFetch);
     let fetchFn = (after, callback) => {
-      console.log("Loading page: " + after);
+      logger.info("Loading page: " + after);
       _populatePageUrls(after, allPosts, (err, after) => {
         if (err) { 
-          console.error("Error getting page urls from reddit post: " + util.inspect(err));
+          logger.error("Error getting page urls from reddit post: " + util.inspect(err));
           return callback(err);
         }
         callback(null, after);
@@ -25,24 +26,24 @@ let reddit = {
 
     async.waterfall(fetchFns, (err, result) => {
       if (err) {
-        console.error("Error getting reddit posts: " + util.inspect(err));
+        logger.error("Error getting reddit posts: " + util.inspect(err));
         return callback(err)
       }
-      console.log('Reddit data request complete: ' + allPosts.length);
+      logger.info('Reddit data request complete: ' + allPosts.length);
       callback(err, allPosts);
     });
   }
 }
 
 function _populatePageUrls(after, allPosts, callback) {
-  console.log('populating page urls...');
+  logger.info('populating page urls...');
   _getPage(after, (err, page) => {
             
     if (err) { 
-      console.error("Error getting page of reddit posts: " + util.inspect(err));
+      logger.error("Error getting page of reddit posts: " + util.inspect(err));
       return callback(err);
     }
-    console.log("loaded page!");
+    logger.info("loaded page!");
     
     var posts = page.children.filter((post) => {
       return post.data &&
@@ -73,7 +74,7 @@ function _getPage(after, callback) {
 
   request(options, (err, res, body) => {
     if (err) {
-      console.error(err);
+      logger.error(err);
       callback(err);
     } else {
       callback(null, body.data);
