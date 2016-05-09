@@ -30,7 +30,7 @@ server.register(plugins, (err) => {
 
   // configure jade views
   server.views({
-    engines: { jade: require('jade') },
+    engines: { pug: require('pug') },
     path: __dirname + '/templates',
     compileOptions: {
         pretty: true
