@@ -1,5 +1,6 @@
 {
   "name": "cloudcats-web",
+  "private": true,
   "version": "1.0.0",
   "description": "CloudCats is an epic battleground to decide once and for all who the internet loves best:  dogs or cats.",
   "main": "server.js",

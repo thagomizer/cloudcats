@@ -1,5 +1,6 @@
 {
   "name": "cloudcats-worker",
+  "private": true,
   "version": "1.0.0",
   "description": "The cloudcats worker uses the reddit API to crawl images on /r/aww and classify them with the Vision API as dogs, cats, or other.",
   "main": "server.js",
