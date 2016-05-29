@@ -18,9 +18,11 @@ server.route({
   method: 'GET',
   path:'/go', 
   handler: (request, reply) => {
-    analyzer.analyze((err) => {
-      return reply('OK!');
-    });
+    setTimeout(() => {
+      analyzer.analyze((err) => {
+        return reply('OK!');
+      });
+    }, 2000);
   }
 });
 
