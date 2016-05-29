@@ -9,7 +9,7 @@ let reddit = {
   getImageUrls: (callback) => {
     logger.info("Request data from reddit...");
     let allPosts = [];
-    let pagesToFetch = 3;
+    let pagesToFetch = 2;
     let fetchFns = Array(pagesToFetch);
     let fetchFn = (after, callback) => {
       logger.info("Loading page: " + after);
