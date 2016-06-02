@@ -10,7 +10,23 @@ const gcloud = require('gcloud')({
 });
 
 const pubsub = gcloud.pubsub();
+const bigquery = gcloud.bigquery();
+const dataset = bigquery.dataset('cloudcats');
+const table = dataset.table('images');
 const topicName = "picEvents";
+
+function publishToBigQuery(data, callback) {
+  //logger.info(`publishing ${data.length} records to big query`);
+  table.insert(data, (err, insertErrors, apiResponse) => {
+    if (err) {
+      logger.error(`error publishing to bigquery: ${util.inspect(err)}\n\t${err.stack}`);
+      return callback(err);
+    } else {
+      //logger.info(`data published to bigquery`);
+      callback();
+    }
+  });
+}
 
 function acquireTopic(callback) {
   pubsub.createTopic(topicName, (err, topic) => {
@@ -47,6 +63,14 @@ function publishEvent(result, topic, callback) {
       total: result.total
     }
   };
+
+  // async publish data to big query
+  publishToBigQuery(evt.data, (err) => {
+    if (err) {
+      logger.error('Error publishing to big query: ' + util.inspect(err));
+    }
+  });
+
 
   topic.publish(evt, (err) => {
     if (err) {
@@ -94,6 +118,7 @@ function analyze(callback) {
 
     let topic = results[0];
     let urls = results[1];
+    let data = [];
     
     // queue vision/pubsub jobs so we don't drown the connection
     var q = async.queue((url, callback) => {
@@ -107,7 +132,8 @@ function analyze(callback) {
           if (err) {
             logger.error('Error publishing event:' + util.inspect(err));
             return callback(err);
-          }
+          } 
+          data.push(evt);
           cnt++;
           logger.info(`${cnt} objects complete`);
           callback(null);
@@ -119,6 +145,7 @@ function analyze(callback) {
 
     q.drain = () => {
       logger.info('***all items have been processed***');
+      
       // send a final event that lets the client know its done
       publishEvent({
         type: 'fin',

@@ -18,11 +18,9 @@ server.route({
   method: 'GET',
   path:'/go', 
   handler: (request, reply) => {
-    setTimeout(() => {
-      analyzer.analyze((err) => {
-        return reply('OK!');
-      });
-    }, 2000);
+    analyzer.analyze((err) => {
+      return reply('OK!');
+    });
   }
 });
 
@@ -30,6 +28,5 @@ server.start((err) => {
     if (err) {
         throw err;
     }
-    logger.error('ITS AN ERROR OMG!!1');
     logger.info('Server running at:', server.info.uri);
 });

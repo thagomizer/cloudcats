@@ -9,7 +9,7 @@ var logger = new winston.Logger({
       handleExceptions: true
     }),
     new winston.transports.GoogleAppEngine()
-  ]
+  ],
+  exitOnError: false
 });
-
 module.exports = logger;

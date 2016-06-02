@@ -72,7 +72,6 @@ server.start((err) => {
   if (err) {
     throw err;
   }
-  logger.error('not really an error');
   logger.info('Server running at:', server.info.uri);
 
   // start listening for cats
