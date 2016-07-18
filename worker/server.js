@@ -3,6 +3,7 @@
 require('@google/cloud-trace').start();
 require('@google/cloud-debug');
 
+const errors = require('@google/cloud-errors')();
 const request = require('request');
 const Hapi = require('hapi');
 const analyzer = require('./analyzer');
@@ -23,6 +24,25 @@ server.route({
     });
   }
 });
+
+server.route({
+  method: 'GET',
+  path: '/error',
+  handler: (request, reply) => {
+    throw new Error('This is a bug!');
+  }
+})
+
+// configure error reporting
+server.register(
+  { 
+    register: errors.hapi
+  }, (err) => {
+    if (err) {
+      logger.error("There was an error in registering the error handling plugin", err);
+    }
+  }
+);
 
 server.start((err) => {
     if (err) {

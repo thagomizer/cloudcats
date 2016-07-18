@@ -3,6 +3,7 @@
 require('@google/cloud-trace').start();
 require('@google/cloud-debug');
 
+const errors = require('@google/cloud-errors')();
 const Hapi = require('hapi');
 const path = require('path');
 const nconf = require('nconf');
@@ -22,7 +23,7 @@ server.connection({
 });
 
 // configure plugins and routes
-var plugins = [require('vision'), require('inert')];
+var plugins = [require('vision'), require('inert'), errors.hapi];
 server.register(plugins, (err) => {
   if (err) {
       throw err;
