@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@google/cloud-debug": "^0.8.3",
-    "@google/cloud-errors": "0.0.1",
+    "@google/cloud-errors": "0.0.3",
     "@google/cloud-trace": "^0.5.4",
     "gcloud": "^0.37.0",
     "hapi": "^13.1.0",
