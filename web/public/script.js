@@ -16,8 +16,8 @@ var catDiv = document.getElementById('cats');
 nub.subscribe({
   channel: 'cloudcats',
   message: function(m) {
-    console.log(m);
-    queue.push(m);
+    console.log(m.data);
+    queue.push(m.data);
   }
 });
 
