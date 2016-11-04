@@ -5,7 +5,7 @@ const vision = require('./vision');
 const util = require('util');
 const async = require('async');
 const logger = require('./logger');
-const gcloud = require('gcloud')({
+const gcloud = require('google-cloud')({
   keyFilename: 'keyfile.json'
 });
 

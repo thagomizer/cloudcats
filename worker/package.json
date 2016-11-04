@@ -11,18 +11,18 @@
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@google/cloud-debug": "^0.8.3",
-    "@google/cloud-errors": "0.0.3",
-    "@google/cloud-trace": "^0.5.4",
+    "@google/cloud-debug": "^0.8.5",
+    "@google/cloud-errors": "^0.1.0",
+    "@google/cloud-trace": "^0.5.9",
     "async": "^1.5.2",
-    "gcloud": "^0.37.0",
-    "hapi": "^13.0.0",
+    "google-cloud": "^0.43.0",
+    "hapi": "^13.5.3",
     "node-uuid": "^1.4.7",
     "request": "^2.69.0",
     "winston": "^2.2.0",
     "winston-gae": "^0.1.0"
   },
   "engines": {
-    "node": "^4.4.5"
+    "node": "^6.9.1"
   }
 }

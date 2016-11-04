@@ -3,7 +3,7 @@
 const nconf = require('nconf');
 const util = require('util');
 const logger = require('./logger');
-const gcloud = require('gcloud');({
+const gcloud = require('google-cloud');({
   keyFilename: 'keyfile.json'
 });
 

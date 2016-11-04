@@ -12,13 +12,13 @@
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": "^4.4.5"
+    "node": "^6.9.1"
   },
   "dependencies": {
-    "@google/cloud-debug": "^0.8.3",
-    "@google/cloud-errors": "0.0.3",
-    "@google/cloud-trace": "^0.5.4",
-    "gcloud": "^0.37.0",
+    "@google/cloud-debug": "^0.8.5",
+    "@google/cloud-errors": "^0.1.0",
+    "@google/cloud-trace": "^0.5.9",
+    "google-cloud": "^0.40.0",
     "hapi": "^13.1.0",
     "inert": "^3.2.0",
     "nconf": "^0.8.4",

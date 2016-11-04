@@ -3,7 +3,7 @@
 require('@google/cloud-trace').start();
 require('@google/cloud-debug');
 
-const errors = require('@google/cloud-errors')();
+const errors = require('@google/cloud-errors').start();
 const Hapi = require('hapi');
 const path = require('path');
 const nconf = require('nconf');
