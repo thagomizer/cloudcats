@@ -1,0 +1,12 @@
+version: '3'
+services:
+  web:
+    build: web/
+    image: gcr.io/cloudcats-next/ccweb
+    ports:
+      - "8080:8080"
+  worker:
+    build: worker/
+    image: gcr.io/cloudcats-next/ccworker
+    ports:
+      - "8081:8080"

@@ -6,21 +6,28 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "GCLOUD_PROJECT=cloudcats-next node server.js"
+    "start": "GCLOUD_PROJECT=cloudcats-next node server.js",
+    "build": "docker build -t gcr.io/cloudcats-next/ccworker .",
+    "push": "gcloud docker -- push gcr.io/cloudcats-next/ccworker",
+    "deploy": "kubectl create -f deployment.yaml",
+    "delete": "kubectl delete -f deployment.yaml"
   },
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@google/cloud-debug": "^0.8.5",
-    "@google/cloud-errors": "^0.1.0",
-    "@google/cloud-trace": "^0.5.9",
+    "@google-cloud/bigquery": "^0.9.5",
+    "@google-cloud/debug-agent": "^2.1.0",
+    "@google-cloud/error-reporting": "^0.1.3",
+    "@google-cloud/logging-winston": "^0.4.1",
+    "@google-cloud/pubsub": "^0.13.0",
+    "@google-cloud/storage": "^1.1.1",
+    "@google-cloud/trace-agent": "^2.1.0",
+    "@google-cloud/vision": "^0.11.3",
     "async": "^1.5.2",
-    "google-cloud": "^0.43.0",
     "hapi": "^13.5.3",
-    "node-uuid": "^1.4.7",
     "request": "^2.69.0",
-    "winston": "^2.2.0",
-    "winston-gae": "^0.1.0"
+    "uuid": "^3.0.1",
+    "winston": "^2.2.0"
   },
   "engines": {
     "node": "^6.9.1"

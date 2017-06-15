@@ -1,9 +1,8 @@
 'use strict';
 
-require('@google/cloud-trace').start();
-require('@google/cloud-debug');
-
-const errors = require('@google/cloud-errors').start();
+require('@google-cloud/debug-agent').start({ allowExpressions: true });
+require('@google-cloud/trace-agent').start();
+const errors = require('@google-cloud/error-reporting')();
 const request = require('request');
 const Hapi = require('hapi');
 const analyzer = require('./analyzer');

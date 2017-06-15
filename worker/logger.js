@@ -1,15 +1,15 @@
 const winston = require('winston');
+const gcpTransport = require('@google-cloud/logging-winston');
 
-// configure the logger
-require('winston-gae');
-var logger = new winston.Logger({
-  levels: winston.config.GoogleAppEngine.levels,
+var logger = new (winston.Logger)({
   transports: [
     new winston.transports.Console({
       handleExceptions: true
     }),
-    new winston.transports.GoogleAppEngine()
-  ],
-  exitOnError: false
+    new gcpTransport({
+      keyFilename: 'keyfile.json'
+    })
+  ]
 });
+
 module.exports = logger;

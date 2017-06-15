@@ -5,12 +5,11 @@ const vision = require('./vision');
 const util = require('util');
 const async = require('async');
 const logger = require('./logger');
-const gcloud = require('google-cloud')({
+const gconf = {
   keyFilename: 'keyfile.json'
-});
-
-const pubsub = gcloud.pubsub();
-const bigquery = gcloud.bigquery();
+}
+const pubsub = require('@google-cloud/pubsub')(gconf);
+const bigquery = require('@google-cloud/bigquery')(gconf);
 const dataset = bigquery.dataset('cloudcats');
 const table = dataset.table('images');
 const topicName = "picEvents";

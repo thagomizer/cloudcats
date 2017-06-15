@@ -1,8 +1,3 @@
-var nub = PUBNUB.init({
-  subscribe_key: subscribeKey,
-  ssl: true
-});
-
 var dogs = 0;
 var cats = 0;
 var other = 0;
@@ -13,12 +8,10 @@ var queue = [];
 var dogDiv = document.getElementById('dogs');
 var catDiv = document.getElementById('cats');
 
-nub.subscribe({
-  channel: 'cloudcats',
-  message: function(m) {
-    console.log(m.data);
-    queue.push(m.data);
-  }
+var socket = io();
+socket.on('cloudcats', function (m) {
+  console.log(m.data);
+  queue.push(m.data);
 });
 
 var addButton = document.getElementById('add');
@@ -34,7 +27,7 @@ addButton.addEventListener('click', function() {
   other = 0;
   total = 0;
   count = 0;
-  fetch(apiEndpoint, { mode: 'no-cors' });
+  socket.emit('start');
   snackbar.MaterialSnackbar.showSnackbar({
     message: "Let's get started!"
   });

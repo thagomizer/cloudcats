@@ -1,19 +1,22 @@
 'use strict';
 
-require('@google/cloud-trace').start();
-require('@google/cloud-debug');
+require('@google-cloud/debug-agent').start({ 
+  allowExpressions: true,
+  keyFilename: './keyfile.json'
+});
 
-const errors = require('@google/cloud-errors').start();
+require('@google-cloud/trace-agent').start({
+  keyFilename: './keyfile.json'
+});
+
+const errors = require('@google-cloud/error-reporting')({
+  keyFilename: './keyfile.json'
+});
+
 const Hapi = require('hapi');
 const path = require('path');
-const nconf = require('nconf');
 const relay = require('./catrelay');
 const logger = require('./logger');
-
-// Configure nconf for reading environment variables
-nconf.argv().env().file({
-  file: 'secrets.json'
-});
 
 // Set up the server
 const server = new Hapi.Server();
@@ -21,6 +24,9 @@ server.connection({
   host: '0.0.0.0', 
   port: process.env.PORT || 8080 
 });
+
+// Set up socket.io
+const io = require('socket.io')(server.listener);
 
 // configure plugins and routes
 var plugins = [require('vision'), require('inert'), errors.hapi];
@@ -49,20 +55,11 @@ server.register(plugins, (err) => {
     }
   });
 
-  // set up index page handler
-  let apiEndpoint = 
-    process.env.NODE_ENV == 'production' ? 
-      'https://worker-dot-cloudcats-next.appspot.com/go' :
-      'http://localhost:8081/go';
-
   server.route({ 
     method: 'GET', 
     path: '/', 
     handler: (request, reply) => {
-      return reply.view('index', {
-        apiEndpoint: apiEndpoint,
-        subscribeKey: nconf.get('pubnub_subscribe_key')
-      });
+      return reply.view('index');
     }
   });
 
@@ -76,5 +73,5 @@ server.start((err) => {
   logger.info('Server running at:', server.info.uri);
 
   // start listening for cats
-  relay.listen();
+  relay.listen(io);
 });

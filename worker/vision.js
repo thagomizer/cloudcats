@@ -4,12 +4,11 @@ const request = require('request');
 const uuid = require('node-uuid');
 const util = require('util');
 const logger = require('./logger');
-const gcloud = require('google-cloud')({
+const gconf = {
   keyFilename: 'keyfile.json'
-});
-
-const vision = gcloud.vision();
-const storage = gcloud.storage();
+};
+const vision = require('@google-cloud/vision')(gconf);
+const storage = require('@google-cloud/storage')(gconf);
 const bucket = storage.bucket('cloudcats-bucket');
 
 var count = 0;
