@@ -148,7 +148,7 @@ function analyze(callback) {
       // send a final event that lets the client know its done
       publishEvent({
         type: 'fin',
-        total: urls.length
+        total: cnt
       }, topic, (err, evt) => {
         if (err) {
           logger.error('Error publishing fin event: ' + util.inspect(err));

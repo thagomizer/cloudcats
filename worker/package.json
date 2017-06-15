@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "GCLOUD_PROJECT=cloudcats-next node server.js",
+    "start": "GCLOUD_PROJECT=cloudcats-next node --inspect server.js",
     "build": "docker build -t gcr.io/cloudcats-next/ccworker .",
     "push": "gcloud docker -- push gcr.io/cloudcats-next/ccworker",
     "deploy": "kubectl create -f deployment.yaml",
@@ -24,7 +24,7 @@
     "@google-cloud/trace-agent": "^2.1.0",
     "@google-cloud/vision": "^0.11.3",
     "async": "^1.5.2",
-    "hapi": "^13.5.3",
+    "hapi": "^16.4.3",
     "request": "^2.69.0",
     "uuid": "^3.0.1",
     "winston": "^2.2.0"

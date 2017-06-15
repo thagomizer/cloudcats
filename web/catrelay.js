@@ -70,8 +70,10 @@ const listen = (io, callback) => {
         logger.error("Error acquiring subscription: " + util.inspect(err));
         return callback(err);
       }
+      let cnt = 0;
       subscription.on('message', (message) => {
-        //logger.info('MESSAGE: ' + util.inspect(message));
+        cnt++;
+        logger.info(`MESSAGE ${cnt}: ${message.data.data.type}`);
         io.emit('cloudcats', message);
       });
       logger.info('listening to sub');
