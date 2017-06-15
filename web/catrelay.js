@@ -14,7 +14,7 @@ const subName = "picSub";
 // set up index page handler
 const apiEndpoint = 
   process.env.NODE_ENV == 'production' ? 
-    'http://worker/go' :
+    'http://cloudcats-worker:8081/go' :
     'http://localhost:8081/go';
 
 // Configure nconf for reading environment variables
@@ -51,6 +51,7 @@ const listen = (io, callback) => {
   // listen to socket.io for a new run request from the browser
   io.on('connection', (socket) => {
     socket.on('start', () => {
+      logger.info(`Requesting a run on ${apiEndpoint}...`);
       request(apiEndpoint, (err, res, body) => {
         if (err) {
           logger.error(err);

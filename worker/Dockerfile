@@ -4,5 +4,6 @@ WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
 RUN npm install --production
 COPY . /usr/src/app
-EXPOSE 8080
+EXPOSE 8081
+ENV NODE_ENV production
 CMD [ "npm", "start" ]

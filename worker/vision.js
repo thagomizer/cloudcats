@@ -1,7 +1,7 @@
 'use strict';
 
 const request = require('request');
-const uuid = require('node-uuid');
+const uuid = require('uuid/v4');
 const util = require('util');
 const logger = require('./logger');
 const gconf = {
@@ -15,7 +15,7 @@ var count = 0;
 
 function annotate(url, callback) {
 
-  let name = uuid.v4();
+  let name = uuid();
   let file = bucket.file(name);
   var idx = count++;
   request(url)
