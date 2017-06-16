@@ -1,11 +1,11 @@
 'use strict';
 
-require('@google-cloud/debug-agent').start({ 
-  allowExpressions: true,
+require('@google-cloud/trace-agent').start({
   keyFilename: './keyfile.json'
 });
 
-require('@google-cloud/trace-agent').start({
+require('@google-cloud/debug-agent').start({ 
+  allowExpressions: true,
   keyFilename: './keyfile.json'
 });
 
@@ -63,6 +63,13 @@ server.register(plugins, (err) => {
     }
   });
 
+  server.route({ 
+    method: 'GET', 
+    path: '/.well-known/acme-challenge/aeNkTlwAw5UKNI_iwKVV_u0EJCY71bcKEoar_RLbanA', 
+    handler: (request, reply) => {
+      return reply('aeNkTlwAw5UKNI_iwKVV_u0EJCY71bcKEoar_RLbanA.Tb_gE8U7ogFhtXoUZ1ivwwS_xNpYWJ8VxebI-tKdMRE');
+    }
+  });
 });
 
 // start the server

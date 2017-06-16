@@ -1,15 +1,18 @@
 'use strict';
 
+require('@google-cloud/trace-agent').start({
+  keyFilename: './keyfile.json'
+});
+
 require('@google-cloud/debug-agent').start({ 
   allowExpressions: true,
   keyFilename: './keyfile.json'
 });
-require('@google-cloud/trace-agent').start({
-  keyFilename: './keyfile.json'
-});
+
 const errors = require('@google-cloud/error-reporting')({
   keyFilename: './keyfile.json'
 });
+
 const request = require('request');
 const Hapi = require('hapi');
 const analyzer = require('./analyzer');
