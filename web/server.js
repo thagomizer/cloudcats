@@ -4,7 +4,7 @@ require('@google-cloud/trace-agent').start({
   keyFilename: './keyfile.json'
 });
 
-require('@google-cloud/debug-agent').start({ 
+require('@google-cloud/debug-agent').start({
   allowExpressions: true,
   keyFilename: './keyfile.json'
 });
@@ -20,9 +20,9 @@ const logger = require('./logger');
 
 // Set up the server
 const server = new Hapi.Server();
-server.connection({ 
-  host: '0.0.0.0', 
-  port: process.env.PORT || 8080 
+server.connection({
+  host: '0.0.0.0',
+  port: process.env.PORT || 8080
 });
 
 // Set up socket.io
@@ -55,19 +55,11 @@ server.register(plugins, (err) => {
     }
   });
 
-  server.route({ 
-    method: 'GET', 
-    path: '/', 
+  server.route({
+    method: 'GET',
+    path: '/',
     handler: (request, reply) => {
       return reply.view('index');
-    }
-  });
-
-  server.route({ 
-    method: 'GET', 
-    path: '/.well-known/acme-challenge/aeNkTlwAw5UKNI_iwKVV_u0EJCY71bcKEoar_RLbanA', 
-    handler: (request, reply) => {
-      return reply('aeNkTlwAw5UKNI_iwKVV_u0EJCY71bcKEoar_RLbanA.Tb_gE8U7ogFhtXoUZ1ivwwS_xNpYWJ8VxebI-tKdMRE');
     }
   });
 });
