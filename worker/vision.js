@@ -4,6 +4,7 @@ const request = require('request');
 const uuid = require('uuid/v4');
 const util = require('util');
 const logger = require('./logger');
+const gcperror = require('./gcperror');
 const gconf = {
   keyFilename: 'keyfile.json'
 };
@@ -13,29 +14,30 @@ const bucket = storage.bucket('cloudcats-bucket');
 
 var count = 0;
 
-function annotate(url, callback) {
-
-  let name = uuid();
-  let file = bucket.file(name);
-  var idx = count++;
-  request(url)
-    .pipe(file.createWriteStream())
-    .on('finish', () => {
-      vision.detectLabels(file, (err, labels) => {
-        if (err) {
-          logger.error("Error detecting labels: " + util.inspect(err));
-          return callback(err);
-        }
-        file.delete();
-        callback(null, {
-          url: url,
-          labels: labels
+async function annotate(url) {
+  const name = uuid();
+  const file = bucket.file(name);
+  return new Promise((resolve, reject) => {
+    request(url)
+      .pipe(file.createWriteStream())
+      .on('finish', () => {
+        vision.detectLabels(file, (err, labels) => {
+          if (err) {
+            logger.error("Error detecting labels");
+            gcperror.dig(err);
+            return reject(err);
+          }
+          file.delete();
+          resolve({
+            url: url,
+            labels: labels
+          });
         });
+      }).on('error', err => {
+        logger.error("Error requesting content: \n\t" + url + "\n\t" + util.inspect(err) + "\n\t" + err.stack);
+        reject(err);
       });
-    }).on('error', (err) => {
-      logger.error("Error requesting content: \n\t" + url + "\n\t" + util.inspect(err) + "\n\t" + err.stack);
-      return callback(err);
-    });
+  });
 }
 
 let api = {

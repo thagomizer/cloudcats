@@ -1,4 +1,4 @@
-FROM node:8.1
+FROM node:8.2
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package.json /usr/src/app/

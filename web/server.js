@@ -9,10 +9,6 @@ require('@google-cloud/debug-agent').start({
   keyFilename: './keyfile.json'
 });
 
-const errors = require('@google-cloud/error-reporting')({
-  keyFilename: './keyfile.json'
-});
-
 const Hapi = require('hapi');
 const path = require('path');
 const relay = require('./catrelay');
@@ -29,7 +25,7 @@ server.connection({
 const io = require('socket.io')(server.listener);
 
 // configure plugins and routes
-var plugins = [require('vision'), require('inert'), errors.hapi];
+var plugins = [require('vision'), require('inert')];
 server.register(plugins, (err) => {
   if (err) {
       throw err;

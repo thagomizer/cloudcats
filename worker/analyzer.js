@@ -5,159 +5,87 @@ const vision = require('./vision');
 const util = require('util');
 const async = require('async');
 const logger = require('./logger');
-const gconf = {
+const bigquery = require('@google-cloud/bigquery')({
   keyFilename: 'keyfile.json'
-}
-const pubsub = require('@google-cloud/pubsub')(gconf);
-const bigquery = require('@google-cloud/bigquery')(gconf);
+});
 const dataset = bigquery.dataset('cloudcats');
 const table = dataset.table('images');
-const topicName = "picEvents";
 
-function publishToBigQuery(data, callback) {
-  //logger.info(`publishing ${data.length} records to big query`);
-  table.insert(data, (err, insertErrors, apiResponse) => {
-    if (err) {
-      logger.error(`error publishing to bigquery: ${util.inspect(err)}\n\t${err.stack}`);
-      return callback(err);
-    } else {
-      //logger.info(`data published to bigquery`);
-      callback();
-    }
-  });
+const PostType = {
+  CAT: 0,
+  DOG: 1,
+  NEITHER: 2,
+  BOTH: 3
 }
 
-function acquireTopic(callback) {
-  pubsub.createTopic(topicName, (err, topic) => {
-    if (err && err.code !== 409) {
-      callback(err);
-    } else {
-      callback(null, pubsub.topic(topicName));
-    }
-  });
+async function publishToBigQuery(data) {
+  try {
+    const results = await table.insert(data);
+  } catch (e) {
+    logger.error(`error publishing to bigquery: ${util.inspect(err)}\n\t${err.stack}`);
+  }
 }
 
-function publishEvent(result, topic, callback) {
-  let type = 'other';
+async function publishEvent(result, call) {
+  let type = PostType.NEITHER;
+  const containsDog = result.labels.indexOf('dog') > -1;
+  const containsCat = result.labels.indexOf('cat') > -1;
 
-  if (result.type === 'fin') {
-    type = 'fin';
-  } else {
-    let containsDog = result.labels.indexOf('dog') > -1;
-    let containsCat = result.labels.indexOf('cat') > -1;
-
-    if (containsCat && !containsDog) {
-      type = 'cat';
-    } else if (containsDog && !containsCat) {
-      type = 'dog';
-    } else if (containsCat && containsDog) {
-      type = 'both';
-    }
+  if (containsCat && !containsDog) {
+    type = PostType.CAT;
+  } else if (containsDog && !containsCat) {
+    type = PostType.DOG;
+  } else if (containsCat && containsDog) {
+    type = PostType.BOTH;
   }
 
-  let evt = {
-    data: {
-      url: result.url,
-      type: type,
-      total: result.total
-    }
+  let data = {
+    url: result.url,
+    type: type
   };
 
   // async publish data to big query
-  publishToBigQuery(evt.data, (err) => {
-    if (err) {
-      logger.error('Error publishing to big query: ' + util.inspect(err));
-    }
-  });
+  publishToBigQuery(data);
 
-
-  topic.publish(evt, (err) => {
-    if (err) {
-      logger.error(`error publishing event: ${util.inspect(err)}\n\t${err.stack}`);
-      return callback(err);
-    } else {
-      logger.info(`event published: ${type}`);
-      callback(null, evt);
-    }
-  });
+  // write out to the gRPC streaming response
+  call.write(data);
 }
 
-function analyze(callback) {
-  logger.info("Starting to analyze!");
-  let cnt = 0;
+async function analyzeImage(url, call) {
+  try {
+    logger.info('processing ' + url);
+    const visionResult = await vision.annotate(url);
+    const evt = await publishEvent(visionResult, call);
+    return evt;
+  } catch (e) {
+    logger.error("Error processing image");
+    logger.error(e);
+  }
+}
 
-  // go get the topic and reddit posts in parallel
-  async.parallel([(callback) => {
-      // get topics
-      acquireTopic((err, topic) => {
-        if (err) {
-          logger.error("Error acquiring topic: " + util.inspect(err));
-          return callback(err);
-        }
-        callback(null, topic);
-      });
-    }, (callback) => {
-      // get urls
-      reddit.getImageUrls((err, urls) => {
-        if (err) {
-          logger.error("Error acquiring reddit urls: " + util.inspect(err));
-          return callback(err);
-        }
-        callback(null, urls);
-      });
-    }
-  ], (err, results) => {
-
-    // we now have urls and the topic
-    if (err) {
-      logger.error("Error acquiring topic or urls: " + util.inspect(err));
-      return callback(err);
-    }
-    logger.info('Received reddit posts and topic, starting classification.');
-
-    let topic = results[0];
-    let urls = results[1];
-    let data = [];
-    
-    // queue vision/pubsub jobs so we don't drown the connection
-    var q = async.queue((url, callback) => {
-      logger.info('processing ' + url);
-      vision.annotate(url, (err, result) => {
-        if (err) {
-          logger.error('Error annotating image:' + util.inspect(err));
-          return callback(err);
-        }
-        publishEvent(result, topic, (err, evt) => {
-          if (err) {
-            logger.error('Error publishing event:' + util.inspect(err));
-            return callback(err);
-          } 
-          data.push(evt);
-          cnt++;
-          logger.info(`${cnt} objects complete`);
-          callback(null);
+async function analyze(call) {
+  return new Promise((resolve, reject) => {
+    logger.info("Starting to analyze!");
+    let cnt = 0;
+    const ai = util.callbackify(analyzeImage);
+    reddit.getImageUrls().then(urls => {
+      const q = async.queue((url, callback) => {
+        ai(url, call, (err, evt) => {
+          if (!err) {
+            cnt++;
+            logger.info(`${cnt} objects complete`);
+          }
+          callback(err)
         });
-      });
-    }, 15);
-
-    q.push(urls);
-
-    q.drain = () => {
-      logger.info('***all items have been processed***');
-      
-      // send a final event that lets the client know its done
-      publishEvent({
-        type: 'fin',
-        total: cnt
-      }, topic, (err, evt) => {
-        if (err) {
-          logger.error('Error publishing fin event: ' + util.inspect(err));
-          return callback(err);
-        }
-        return callback();
-      });
-    }
-
+      }, 15);
+      q.push(urls);
+      q.drain = () => {
+        logger.info('***all items have been processed***');
+        resolve();
+      }
+    }).catch(e => {
+      reject(e);
+    });
   });
 }
 

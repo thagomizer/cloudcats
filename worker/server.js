@@ -4,58 +4,30 @@ require('@google-cloud/trace-agent').start({
   keyFilename: './keyfile.json'
 });
 
-require('@google-cloud/debug-agent').start({ 
+require('@google-cloud/debug-agent').start({
   allowExpressions: true,
   keyFilename: './keyfile.json'
 });
 
-const errors = require('@google-cloud/error-reporting')({
-  keyFilename: './keyfile.json'
-});
-
-const request = require('request');
-const Hapi = require('hapi');
 const analyzer = require('./analyzer');
 const logger = require('./logger');
+const grpc = require('grpc');
 
-const server = new Hapi.Server();
-server.connection({ 
-  host: '0.0.0.0', 
-  port: process.env.PORT || 8081 
-});
+const proto = grpc.load('cloudcats.proto').cloudcats;
 
-server.route({
-  method: 'GET',
-  path:'/go', 
-  handler: (request, reply) => {
-    analyzer.analyze((err) => {
-      return reply('OK!');
-    });
+const server = new grpc.Server();
+server.addService(proto.Worker.service, {
+  analyze: (call) => {
+    analyzer.analyze(call)
+      .then(result => {
+        logger.info("Request complete. Ending streaming response.");
+        call.end();
+      }).catch(err => {
+        logger.error('Error analyzing reddit');
+        logger.error(err);
+        call.end();
+      });
   }
 });
-
-server.route({
-  method: 'GET',
-  path: '/error',
-  handler: (request, reply) => {
-    throw new Error('This is a bug!');
-  }
-});
-
-// configure error reporting
-server.register(
-  { 
-    register: errors.hapi
-  }, (err) => {
-    if (err) {
-      logger.error("There was an error in registering the error handling plugin", err);
-    }
-  }
-);
-
-server.start((err) => {
-    if (err) {
-        throw err;
-    }
-    logger.info('Server running at:', server.info.uri);
-});
+server.bind('0.0.0.0:8081', grpc.ServerCredentials.createInsecure());
+server.start();

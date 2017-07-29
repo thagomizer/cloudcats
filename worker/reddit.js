@@ -1,66 +1,43 @@
 'use strict';
 
-const request = require('request');
+const request = require('request-promise');
 const util = require('util');
-const async = require('async');
 const logger = require('./logger');
 
-let reddit = {
-  getImageUrls: (callback) => {
-    logger.info("Request data from reddit...");
-    let allPosts = [];
-    let pagesToFetch = 3;
-    let fetchFns = Array(pagesToFetch);
-    let fetchFn = (after, callback) => {
-      logger.info("Loading page: " + after);
-      _populatePageUrls(after, allPosts, (err, after) => {
-        if (err) { 
-          logger.error("Error getting page urls from reddit post: " + util.inspect(err));
-          return callback(err);
-        }
-        callback(null, after);
-      });
-    };
-    fetchFns.fill(fetchFn);
-    fetchFns[0] = async.apply(fetchFn, null);
-
-    async.waterfall(fetchFns, (err, result) => {
-      if (err) {
-        logger.error("Error getting reddit posts: " + util.inspect(err));
-        return callback(err)
-      }
-      logger.info('Reddit data request complete: ' + allPosts.length);
-      callback(err, allPosts);
-    });
+async function getImageUrls() {
+  logger.info("Request data from reddit...");
+  const allPosts = [];
+  const pagesToFetch = 3;
+  let after = null;
+  for (let i=0; i<pagesToFetch; i++) {
+    logger.info(`Loading page: ${after}`);
+    after = await _populatePageUrls(after, allPosts);
+    logger.info(`Done loading page!`);
   }
+  logger.info('Reddit data request complete: ' + allPosts.length);
+  return allPosts;
 }
 
-function _populatePageUrls(after, allPosts, callback) {
+async function _populatePageUrls(after, allPosts) {
   logger.info('populating page urls...');
-  _getPage(after, (err, page) => {
-            
-    if (err) { 
-      logger.error("Error getting page of reddit posts: " + util.inspect(err));
-      return callback(err);
-    }
-    logger.info("loaded page!");
-    
-    var posts = page.children.filter((post) => {
-      return post.data &&
-              post.data.preview &&
-              post.data.preview.images &&
-              post.data.preview.images.length > 0;
-    }).map((post) => {
-      return post.data.preview.images[0].source.url;
-    });
-    Array.prototype.push.apply(allPosts, posts);
-
-    callback(null, page.after);
+  const page = await _getPage(after);
+  logger.info(`loaded page ${page.after}!`);
+  const posts = page.children.filter(post => {
+    return post.data &&
+            post.data.preview &&
+            post.data.preview.images &&
+            post.data.preview.images.length > 0;
+  }).map(post => {
+    return post.data.preview.images[0].source.url;
   });
+  console.log(posts);
+  Array.prototype.push.apply(allPosts, posts);
+  logger.info(`Pushed ${posts.length} items`);
+  return page.after;
 }
 
-function _getPage(after, callback) {
-  
+async function _getPage(after) {
+
   let options = {
     url: 'https://www.reddit.com/r/aww/hot.json',
     json: true,
@@ -72,14 +49,10 @@ function _getPage(after, callback) {
     }
   };
 
-  request(options, (err, res, body) => {
-    if (err) {
-      logger.error(err);
-      callback(err);
-    } else {
-      callback(null, body.data);
-    }
-  });
+  const res = await request(options);
+  return res.data;
 }
 
-module.exports = reddit;
+module.exports = {
+  getImageUrls: getImageUrls
+};
