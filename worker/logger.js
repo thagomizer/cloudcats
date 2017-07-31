@@ -7,7 +7,8 @@ var logger = new (winston.Logger)({
       handleExceptions: true
     }),
     new gcpTransport({
-      keyFilename: 'keyfile.json'
+      keyFilename: 'keyfile.json',
+      logName: 'cloudcats-web'
     })
   ]
 });

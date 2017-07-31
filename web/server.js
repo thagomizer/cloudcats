@@ -22,7 +22,9 @@ server.connection({
 });
 
 // Set up socket.io
-const io = require('socket.io')(server.listener);
+const io = require('socket.io')(server.listener, {
+  transports: ['polling']
+});
 
 // configure plugins and routes
 var plugins = [require('vision'), require('inert')];
