@@ -1,6 +1,6 @@
 # CLOUD CATS
 
-CloudCats is an example of using node.js and various Google Cloud APIs and services to solve the greatest question of our time:  do developers prefer dogs or cats.  
+CloudCats is an example of using node.js and various Google Cloud APIs and services to solve the greatest question of our time:  do developers prefer dogs or cats.
 
 ![CATS IN THE CLOUD][screenshot]
 
@@ -8,13 +8,13 @@ __This is an adaptation of the [awwvision][awwvision], which uses [Kubernetes][k
 
 ## How it works
 
-Cloud Cats queries for a list of images from the front page of [r/aww][raww].  Each of those images is saved into [Google Cloud Storage][storage], and then analyzed using the [Google Cloud Vision API][vision].  
+Cloud Cats queries for a list of images from the front page of [r/aww][raww].  Each of those images is saved into [Google Cloud Storage][storage], and then analyzed using the [Google Cloud Vision API][vision].
 
 ![Architectural diagram][how-it-works]
 
-Cloud Cats uses a few Google Cloud APIs and Services.  
+Cloud Cats uses a few Google Cloud APIs and Services.
 
-- Users visit the front application, which is running in an [App Engine][appengine] module.  
+- Users visit the front application, which is running in an [App Engine][appengine] module.
 - When you're ready to do a run, the {+} will call an endpoint on the [worker][/worker] module.
 - The worker will invoke the [Reddit JSON API][reddit] to get a list of images from [r/aww][raww].
 - Images are saved to [Google Cloud Storage][storage].
@@ -26,13 +26,13 @@ Cloud Cats uses a few Google Cloud APIs and Services.
 
 ## Deployment
 
-This code is built as a demo for running [Node.js on Google Cloud](https://cloud.google.com/nodejs), but you can run it anywhere that node.js works.  
+This code is built as a demo for running [Node.js on Google Cloud](https://cloud.google.com/nodejs), but you can run it anywhere that node.js works.
 
 1. Create a project in the [Google Cloud Platform Console](https://console.cloud.google.com/).
 1. [Enable billing](https://console.cloud.google.com/project/_/settings) for your project.
 1. Enable Storage, PubSub, and Cloud Vision APIs in the API Manager.
 1. Install the [Google Cloud SDK](https://cloud.google.com/sdk/).
-1. Deploy with `gcloud preview app deploy web/app.yaml worker/app.yaml --project <YOUR PROJECT>`
+1. Deploy with `gcloud app deploy web/app.yaml worker/app.yaml --project <YOUR PROJECT>`
 
 
 ## License

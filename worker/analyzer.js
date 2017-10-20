@@ -26,7 +26,7 @@ async function publishToBigQuery(data) {
   }
 }
 
-async function publishEvent(result, call) {
+async function publishEvent(result, socket) {
   let type = PostType.NEITHER;
   const containsDog = result.labels.indexOf('dog') > -1;
   const containsCat = result.labels.indexOf('cat') > -1;
@@ -48,14 +48,14 @@ async function publishEvent(result, call) {
   publishToBigQuery(data);
 
   // write out to the gRPC streaming response
-  call.write(data);
+  socket.emit('data', data);
 }
 
-async function analyzeImage(url, call) {
+async function analyzeImage(url, socket) {
   try {
     logger.info('processing ' + url);
     const visionResult = await vision.annotate(url);
-    const evt = await publishEvent(visionResult, call);
+    const evt = await publishEvent(visionResult, socket);
     return evt;
   } catch (e) {
     logger.error("Error processing image");
@@ -63,14 +63,14 @@ async function analyzeImage(url, call) {
   }
 }
 
-async function analyze(call) {
+async function analyze(socket) {
   return new Promise((resolve, reject) => {
     logger.info("Starting to analyze!");
     let cnt = 0;
     const ai = util.callbackify(analyzeImage);
     reddit.getImageUrls().then(urls => {
       const q = async.queue((url, callback) => {
-        ai(url, call, (err, evt) => {
+        ai(url, socket, (err, evt) => {
           if (!err) {
             cnt++;
             logger.info(`${cnt} objects complete`);
