@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  test-web:
+    docker:
+      - image: node:8.9-alpine
+    working_directory: ~/web
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm test
+  test-worker:
+    docker:
+      - image: node:8.9-alpine
+    working_directory: ~/worker
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm test
