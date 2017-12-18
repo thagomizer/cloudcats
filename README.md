@@ -1,5 +1,7 @@
 # CLOUD CATS
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/JustinBeckwith/cloudcats.svg)](https://greenkeeper.io/)
+
 CloudCats is an example of using node.js and various Google Cloud APIs and services to solve the greatest question of our time:  do developers prefer dogs or cats.  
 
 ![CATS IN THE CLOUD][screenshot]
