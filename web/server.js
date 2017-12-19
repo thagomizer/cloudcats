@@ -14,9 +14,12 @@ const path = require('path');
 const relay = require('./catrelay');
 const logger = require('./logger');
 
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+});
+
 // Set up the server
-const server = new Hapi.Server();
-server.connection({
+const server = new Hapi.Server({
   host: '0.0.0.0',
   port: process.env.PORT || 8080
 });
@@ -26,12 +29,8 @@ const io = require('socket.io')(server.listener, {
   transports: ['polling']
 });
 
-// configure plugins and routes
-var plugins = [require('vision'), require('inert')];
-server.register(plugins, (err) => {
-  if (err) {
-      throw err;
-  }
+async function main() {
+  await server.register([require('vision'), require('inert')]);
 
   // configure jade views
   server.views({
@@ -56,19 +55,17 @@ server.register(plugins, (err) => {
   server.route({
     method: 'GET',
     path: '/',
-    handler: (request, reply) => {
-      return reply.view('index');
+    handler: (request, h) => {
+      return h.view('index');
     }
   });
-});
 
-// start the server
-server.start((err) => {
-  if (err) {
-    throw err;
-  }
+  // start the server
+  await server.start();
   logger.info('Server running at:', server.info.uri);
 
   // start listening for cats
   relay.listen(io);
-});
+}
+
+main();

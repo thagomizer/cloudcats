@@ -1,5 +1,4 @@
 FROM node:8.9-alpine
-RUN apk update && apk add libc6-compat
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY package*.json /usr/src/app/

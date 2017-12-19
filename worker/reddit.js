@@ -1,6 +1,6 @@
 'use strict';
 
-const request = require('request-promise');
+const axios = require('axios');
 const util = require('util');
 const logger = require('./logger');
 
@@ -40,17 +40,16 @@ async function _getPage(after) {
 
   let options = {
     url: 'https://www.reddit.com/r/aww/hot.json',
-    json: true,
     headers: {
       'User-Agent': 'justinbeckwith:cloudcats:v1.0.0 (by /u/justinblat)'
     },
-    qs: {
+    params: {
       after: after
     }
   };
 
-  const res = await request(options);
-  return res.data;
+  const res = await axios(options);
+  return res.data.data;
 }
 
 module.exports = {
