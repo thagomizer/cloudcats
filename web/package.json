@@ -5,9 +5,8 @@
   "description": "CloudCats is an epic battleground to decide once and for all who the internet loves best:  dogs or cats.",
   "main": "server.js",
   "scripts": {
-    "start": "GCLOUD_PROJECT=cloudcats-next node server.js",
+    "start": "node server.js",
     "test": "ava",
-    "debug": "GCLOUD_PROJECT=cloudcats-next node --inspect server.js",
     "update": "./update.sh"
   },
   "author": "Justin Beckwith<justin.beckwith@gmail.com>",
@@ -16,18 +15,18 @@
     "node": "^8.2.0"
   },
   "dependencies": {
-    "@google-cloud/debug-agent": "^2.3.1",
-    "@google-cloud/logging-winston": "^0.7.0",
-    "@google-cloud/trace-agent": "^2.3.3",
-    "grpc": "^1.8.0",
-    "hapi": "^17.1.1",
-    "inert": "^5.0.1",
-    "pug": "^2.0.0-rc.4",
+    "@google-cloud/debug-agent": "^2.4.0",
+    "@google-cloud/logging-winston": "^0.8.1",
+    "@google-cloud/trace-agent": "^2.5.0",
+    "grpc": "^1.10.0",
+    "hapi": "^17.2.3",
+    "inert": "^5.1.0",
+    "pug": "^2.0.3",
     "socket.io": "^2.0.4",
-    "vision": "^5.2.0",
-    "winston": "^2.4.0"
+    "vision": "^5.3.2",
+    "winston": "^2.4.1"
   },
   "devDependencies": {
-    "ava": "^0.24.0"
+    "ava": "^0.25.0"
   }
 }

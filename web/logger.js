@@ -1,12 +1,12 @@
 const winston = require('winston');
-const gcpTransport = require('@google-cloud/logging-winston');
+const {LoggingWinston} = require('@google-cloud/logging-winston');
 
 var logger = new (winston.Logger)({
   transports: [
     new winston.transports.Console({
       handleExceptions: true
     }),
-    new gcpTransport({
+    new LoggingWinston({
       keyFilename: 'keyfile.json',
       logName: 'cloudcats-web'
     })
