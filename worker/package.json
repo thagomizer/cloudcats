@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "test": "ava",
-    "start": "GCLOUD_PROJECT=cloudcats-next node server.js",
-    "debug": "GCLOUD_PROJECT=cloudcats-next node --inspect server.js",
+    "start": "GCLOUD_PROJECT=next18-appdev-chaos-standalone node server.js",
+    "debug": "GCLOUD_PROJECT=next18-appdev-chaos-standalone node --inspect server.js",
     "update": "./update.sh",
     "fix": "semistandard --fix *.js"
   },

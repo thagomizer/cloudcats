@@ -3,18 +3,18 @@
   "version": "1.0.0",
   "description": "CloudCats is an example of using node.js and various Google Cloud APIs and services to solve the greatest question of our time:  do developers prefer dogs or cats.",
   "scripts": {
-    "connect": "gcloud container clusters get-credentials cloudcats --zone us-central1-a --project cloudcats-next",
+    "connect": "gcloud container clusters get-credentials cloudcats --zone us-central1-a --project next18-appdev-chaos-standalone",
     "update": "./update.sh"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JustinBeckwith/cloudcats.git"
+    "url": "git+https://github.com/thagomizer/cloudcats.git"
   },
   "keywords": [],
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JustinBeckwith/cloudcats/issues"
+    "url": "https://github.com/thagomizer/cloudcats/issues"
   },
-  "homepage": "https://github.com/JustinBeckwith/cloudcats#readme"
+  "homepage": "https://github.com/thagomizer/cloudcats#readme"
 }
